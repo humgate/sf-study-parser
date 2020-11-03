@@ -11,7 +11,7 @@ public class Application {
 
     static {
         //Read logging.properties
-        InputStream stream = Application.class.getClassLoader().getResourceAsStream("logging1.properties");
+        InputStream stream = Application.class.getClassLoader().getResourceAsStream("logging.properties");
         if (stream == null) {
             System.out.println("Critical error: logging properties file not found. Exiting now");
             System.exit(2);
