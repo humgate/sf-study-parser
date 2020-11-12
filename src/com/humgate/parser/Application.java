@@ -8,6 +8,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.*;
 import java.util.logging.*;
 
 /**
@@ -49,22 +50,18 @@ public class Application {
             System.out.println("Failed to get the webpage from URL");
         }
 
+        try {
+            Elements classPostslisttopic = doc.getElementsByClass("postslisttopic");
+            LinkedList<String> tdList = new LinkedList<>(classPostslisttopic.eachText());
 
-        Elements links = doc.select("a[href]");
-        Elements media = doc.select("[src]");
-        Elements imports = doc.select("link[href]");
+            System.out.print("Topicscount: (" + classPostslisttopic.size () + ")\n");
 
-
-        System.out.print("\nMedia: (" + media.size () + ")");
-        for (Element src : media) {
-            if (src.normalName().equals("img"))
-                System.out.println(" * %s: <%s> %sx%s (%s)" +  src.tagName() +
-                                src.attr("abs:src") +  src.attr("width") +
-                                src.attr("height") + (src.attr("alt")));
-            else
-            System.out.println(" * %s: <%s>" + src.tagName() + src.attr("abs:src"));
+            for (String s : tdList) {
+                System.out.println(s);
+            }    
+        } catch (NullPointerException npe) {
+            LOGGER.info("No postslisttopic class elements found on the html page");          
         }
-
 
         LOGGER.info("main method ends");
     }
