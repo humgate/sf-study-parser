@@ -42,6 +42,7 @@ public class Application {
         String url = args[0];
         System.out.println("Fetching %s..." + url);
 
+        //подключаемся и получаем страницу
         Document doc = null;
         try {
             doc = Jsoup.connect(url).get();
@@ -50,15 +51,20 @@ public class Application {
             System.out.println("Failed to get the webpage from URL");
         }
 
+        //По тексту страницы ищем вакансии element class="postslisttopic" и сохранаем их список в коллекцию
         try {
-            Elements classPostslisttopic = doc.getElementsByClass("postslisttopic");
-            LinkedList<String> tdList = new LinkedList<>(classPostslisttopic.eachText());
+            Elements vacElmList = doc.getElementsByClass("postslisttopic");
+            LinkedList<Vacation> vacsList= new LinkedList<>();
+            for (Element el: vacElmList) {
+                String tmpStr =
+                        el.selectFirst("a[href]").absUrl("href").replaceAll("\\?hl=java","");
+                vacsList.add(new Vacation(tmpStr, el.selectFirst("a[href]").ownText(),null));
+            }
+            System.out.print("Topicscount: (" + vacElmList.size () + ")\n");
+            for (Vacation vac : vacsList) {
+                System.out.println(vac.getVacPageURL());
+           }
 
-            System.out.print("Topicscount: (" + classPostslisttopic.size () + ")\n");
-
-            for (String s : tdList) {
-                System.out.println(s);
-            }    
         } catch (NullPointerException npe) {
             LOGGER.info("No postslisttopic class elements found on the html page");          
         }
