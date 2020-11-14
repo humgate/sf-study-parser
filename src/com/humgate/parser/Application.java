@@ -51,12 +51,33 @@ public class Application {
             System.out.println("Failed to get the webpage from URL");
         }
 
+        /* На странице находим сколько всего страниц вернул поиск по переданному url
+        * сохраняем это число как int.
+        */
+        Element targetEl = null;
+        Elements searchPagesNumList = doc.getElementsByClass("forumtable_results" );
+        for (Element el: searchPagesNumList) {
+            System.out.println(el.child(0).child(0).selectFirst("td").ownText());
+            targetEl = el.child(0).child(0).selectFirst("td");
+            if (targetEl.ownText().equals("Страницы: ..")) {
+                System.out.println("нашли!");
+            break;
+            }
+        }
+
+        String str = targetEl.child(targetEl.childrenSize()-1).text();
+        int pagesCount = Integer.parseInt(str);
+        System.out.println(pagesCount);
+
+
+        /*
         //По тексту страницы ищем вакансии element class="postslisttopic" и сохранаем их список в коллекцию
         try {
             Elements vacElmList = doc.getElementsByClass("postslisttopic");
             LinkedList<Vacation> vacsList= new LinkedList<>();
             for (Element el: vacElmList) {
                 String tmpStr =
+                        // cut "?hl=java" form the tail of the href
                         el.selectFirst("a[href]").absUrl("href").replaceAll("\\?hl=java","");
                 vacsList.add(new Vacation(tmpStr, el.selectFirst("a[href]").ownText(),null));
             }
@@ -68,6 +89,10 @@ public class Application {
         } catch (NullPointerException npe) {
             LOGGER.info("No postslisttopic class elements found on the html page");          
         }
+        */
+        /* проходим по каждому элементу коллекции вакансий и скачиваем страницу вакансии, извлекаем текст
+         и сохраняем в атрибуте коллекции
+         */
 
         LOGGER.info("main method ends");
     }
