@@ -8,7 +8,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.LinkedList;
 import java.util.logging.*;
 
 /**
@@ -34,67 +34,93 @@ public class Application {
     }
 
     // Init global package wide logger
-    private static final Logger LOGGER= Logger.getLogger("com.humgate.parser");
+    private static final Logger LOGGER = Logger.getLogger("com.humgate.parser");
 
     public static void main(String[] args) {
         LOGGER.info("main method starts");
         Validate.isTrue(args.length == 1, "usage: supply url to fetch");
         String url = args[0];
-        System.out.println("Fetching %s..." + url);
+
+        LOGGER.info("Started url fetching:  " + url);
 
         //подключаемся и получаем страницу
         Document doc = null;
         try {
             doc = Jsoup.connect(url).get();
-            LOGGER.info("got html page into jsoup documents");
         } catch (IOException e) {
             System.out.println("Failed to get the webpage from URL");
         }
+        LOGGER.info("Successfully fetched base url: " + url);
 
         /* На странице находим сколько всего страниц вернул поиск по переданному url
-        * сохраняем это число как int.
-        */
-        Element targetEl = null;
-        Elements searchPagesNumList = doc.getElementsByClass("forumtable_results" );
-        for (Element el: searchPagesNumList) {
-            System.out.println(el.child(0).child(0).selectFirst("td").ownText());
-            targetEl = el.child(0).child(0).selectFirst("td");
-            if (targetEl.ownText().equals("Страницы: ..")) {
-                System.out.println("нашли!");
-            break;
+         * сохраняем это число как int.
+         */
+        Element targetEl;
+        int pagesCount = 0;
+        Elements searchPagesNumList = doc.getElementsByClass("forumtable_results");
+
+        for (Element el : searchPagesNumList) {
+            targetEl = el.selectFirst("td");
+            System.out.println(targetEl.child(0).text());
+            if (targetEl.text().startsWith("По вашему запросу найдено")) {
+                LOGGER.info("Total vacation topics found: " + targetEl.child(0).text());
+            }
+            if (targetEl.text().startsWith("Страницы:")) {
+                pagesCount = Integer.parseInt(targetEl.child(targetEl.childrenSize() - 1).text());
+                LOGGER.info("Search results page count successfully parsed: " + pagesCount);
+                break;
             }
         }
-
-        String str = targetEl.child(targetEl.childrenSize()-1).text();
-        int pagesCount = Integer.parseInt(str);
-        System.out.println(pagesCount);
-
 
         /*
-        //По тексту страницы ищем вакансии element class="postslisttopic" и сохранаем их список в коллекцию
-        try {
-            Elements vacElmList = doc.getElementsByClass("postslisttopic");
-            LinkedList<Vacation> vacsList= new LinkedList<>();
-            for (Element el: vacElmList) {
-                String tmpStr =
-                        // cut "?hl=java" form the tail of the href
-                        el.selectFirst("a[href]").absUrl("href").replaceAll("\\?hl=java","");
-                vacsList.add(new Vacation(tmpStr, el.selectFirst("a[href]").ownText(),null));
-            }
-            System.out.print("Topicscount: (" + vacElmList.size () + ")\n");
-            for (Vacation vac : vacsList) {
-                System.out.println(vac.getVacPageURL());
-           }
-
-        } catch (NullPointerException npe) {
-            LOGGER.info("No postslisttopic class elements found on the html page");          
-        }
-        */
-        /* проходим по каждому элементу коллекции вакансий и скачиваем страницу вакансии, извлекаем текст
-         и сохраняем в атрибуте коллекции
+         * Load each page with search results and save each topic name and vacation url to the
+         * collection of Vacations
          */
+        LinkedList<Vacation> vacationsList = new LinkedList<>();
 
-        LOGGER.info("main method ends");
+        for (int i = 1; i <= pagesCount; i++) {
+            try {
+                if (i > 1) {
+                    try {
+                        doc = Jsoup.connect(url + "&pg=" + i).get();
+                    } catch (IOException e) {
+                        LOGGER.severe("Failed to get the webpage from URL " + (url + "&pg=" + i));
+                    }
+                    LOGGER.info("Successfully fetched base url: " + url);
+                }
+                Elements targetPageClassList = doc.getElementsByClass("postslisttopic");
+                for (Element el : targetPageClassList) {
+                    String tmpStr =
+                            // cut "?hl=java" form the tail of the href, just no need for it
+                            el.selectFirst("a[href]").absUrl("href").replaceAll("\\?hl=java", "");
+                    vacationsList.add(new Vacation(tmpStr, el.selectFirst("a[href]").ownText(), null));
+                }
+                System.out.print("Topicscount: (" + targetPageClassList.size() + ")\n");
+            } catch (NullPointerException npe) {
+                LOGGER.info("No postslisttopic class elements found on the html page");
+            }
+        }
+        System.out.println(vacationsList.size());
+        for (Vacation vac : vacationsList) {
+            System.out.println(vac.getVacPageURL());
+        }
+
+       /*
+        * Iterate through vacations collection. Load the vacation details page from the Url stored in vacation from
+        * vacation url field. The description we want located in the <td class="msgBody"> counting from document begin
+        * so it has index 1 in getElementsByClass("msgBody") collection
+        */
+        try {
+            doc = Jsoup.connect(vacationsList.get(1).getVacPageURL()).get();
+        } catch (IOException e) {
+            LOGGER.severe("Failed to get the webpage from URL " + vacationsList.get(1).getVacPageURL());
+        }
+
+        LOGGER.info("Successfully fetched base url: " + url);
+
+        Elements msgBodyList = doc.getElementsByClass("msgBody");
+        targetEl = msgBodyList.get(1).selectFirst("td");
+        System.out.println(targetEl.text());
     }
 }
 
