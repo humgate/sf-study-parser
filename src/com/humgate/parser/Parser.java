@@ -10,7 +10,7 @@ public interface Parser {
      * Returns topic search results page URLs collection based on the search URL passed in the parameter.
      * @param searchUrl - URL string to be posted by the webpage to obtain search results.
      * @return - Collection of strings where each string is the URL of separate web page containing its own
-     * portion of the topics search results .
+     * portion of the topics search results.
      */
     LinkedList<String> getSearchResultsPagesList(String searchUrl);
 
@@ -27,11 +27,11 @@ public interface Parser {
     LinkedList<Vacation> getVacationTopicsList(LinkedList<String> resultPagesLinkList);
 
     /**
-     * Iterates through all the vacations in @param. Reads the vacation detailed description form the vacation details
+     * Iterates through all the vacations in @param. Reads the vacation detailed description from the vacation details
      * web page which Url stored in vacation vacPageURL field.
      * @param vacationsList - Collection of all vacations, where each vacation has already filled out both vacPageURL and
      * vacTopicText fields from vacation topic pages
-     * @return - Collection of all vacations, where each vacation has vacDescription filled out
+     * @return - Collection of all vacations, where each vacation has all fields including vacDescription filled out
      */
 
     LinkedList<Vacation> getVacationDescription (LinkedList<Vacation> vacationsList);
