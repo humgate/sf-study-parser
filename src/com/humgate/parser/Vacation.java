@@ -1,7 +1,6 @@
 package com.humgate.parser;
 
 import lombok.Getter;
-
 import lombok.NonNull;
 import lombok.Setter;
 

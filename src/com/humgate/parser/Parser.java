@@ -15,8 +15,8 @@ public interface Parser {
     LinkedList<String> getSearchResultsPagesList(String searchUrl);
 
     /**
-     * Returns Vacation collection from all topic search results pages stored in parameter. Each vacation in collection must
-     * have two fields filled out with data obtained from search results (topics): vacPageURL and vacTopicText.
+     * Returns Vacation collection from all topic search results pages stored in parameter. Each vacation in collection
+     * must have two fields filled out with data obtained from search results (topics): vacPageURL and vacTopicText.
      * vacDescription filed may be null or empty, because it will be read from vacation Details page
      * using getVacationDescription.
      * @param resultPagesLinkList - Collection of strings where each string is the URL of separate web page

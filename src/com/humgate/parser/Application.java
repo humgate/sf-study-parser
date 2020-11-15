@@ -46,7 +46,9 @@ public class Application {
         //From all the topic search results pages get topic url and topic text and save as elements of VacationsList
         LinkedList<Vacation> vacationsList = sqlRuParser.getVacationTopicsList(resultsPageNumList);
 
+        //Iterate through vacationList, read specific vacation page and read description to Vacation in VacationList
         vacationsList = sqlRuParser.getVacationDescription(vacationsList);
+
         for (Vacation vac : vacationsList) {
              System.out.println("URL = " + vac.getVacPageURL());
              System.out.println("Text = " + vac.getVacTopicText());
