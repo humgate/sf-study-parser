@@ -1,12 +1,15 @@
 package com.humgate.parser;
 
 import lombok.Getter;
+
+import lombok.NonNull;
 import lombok.Setter;
 
 @Getter @Setter
 public class Vacation {
-
+    @NonNull
     private String vacPageURL;
+    @NonNull
     private String vacTopicText;
     private String vacDescription;
 
